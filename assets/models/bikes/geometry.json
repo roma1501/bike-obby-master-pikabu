@@ -1,0 +1,344 @@
+{
+  "units": "метры Blender (1 м = 100 px); X вперёд, Y влево, Z вверх; начало = земля посередине между колёсами",
+  "rearAxle": [
+    -0.58,
+    0.0,
+    0.42
+  ],
+  "frontAxle": [
+    0.58,
+    0.0,
+    0.42
+  ],
+  "wheelRadius": 0.42,
+  "bottomBracket": [
+    -0.05,
+    0.0,
+    0.4
+  ],
+  "crankLength": 0.17,
+  "pedalY": 0.155,
+  "saddleTop": [
+    -0.2,
+    0.0,
+    0.98
+  ],
+  "grips": {
+    "L": [
+      0.34,
+      0.3,
+      1.16
+    ],
+    "R": [
+      0.34,
+      -0.3,
+      1.16
+    ]
+  },
+  "bones": "Root > Frame > { Fork > WheelF, WheelR, Crank }; Frame в начале координат, WheelF/WheelR на осях, Crank в каретке, Fork на рулевой колонке (середина рулевого стакана): bikes.<id>.forkBoneHead",
+  "rotation": "кости вверх, roll 0: локальные оси узла = оси модели glTF (X вперёд, Y вверх, Z вправо). Колесо катится вперёд и шатуны крутятся вперёд = поворот вокруг локальной Z на -угол (угол колеса = путь / 0.42). Руль — вокруг локальной Y кости Fork (вертикаль через forkBoneHead).",
+  "crankRest": "в покое правый шатун (-Y Blender = +Z glTF) смотрит вперёд (+X), левый назад",
+  "paint": "белые вершины частей Frame и Fork = основной цвет рамы (перекрашивать обе части); остальное — свои цвета",
+  "bikes": {
+    "city": {
+      "forkBoneHead": [
+        0.3629,
+        0.0,
+        0.965
+      ],
+      "steerAxis": [
+        -0.309,
+        0.0,
+        0.9511
+      ],
+      "tireHalfWidth": {
+        "front": 0.028,
+        "rear": 0.028
+      },
+      "tris": 5044
+    },
+    "bmx": {
+      "forkBoneHead": [
+        0.3629,
+        0.0,
+        0.965
+      ],
+      "steerAxis": [
+        -0.309,
+        0.0,
+        0.9511
+      ],
+      "tireHalfWidth": {
+        "front": 0.034,
+        "rear": 0.034
+      },
+      "tris": 4732
+    },
+    "mtb": {
+      "forkBoneHead": [
+        0.3629,
+        0.0,
+        0.965
+      ],
+      "steerAxis": [
+        -0.309,
+        0.0,
+        0.9511
+      ],
+      "tireHalfWidth": {
+        "front": 0.038,
+        "rear": 0.038
+      },
+      "tris": 5228
+    },
+    "road": {
+      "forkBoneHead": [
+        0.3629,
+        0.0,
+        0.965
+      ],
+      "steerAxis": [
+        -0.309,
+        0.0,
+        0.9511
+      ],
+      "tireHalfWidth": {
+        "front": 0.0155,
+        "rear": 0.0155
+      },
+      "tris": 4184
+    },
+    "chopper": {
+      "forkBoneHead": [
+        0.2108,
+        0.0,
+        0.86
+      ],
+      "steerAxis": [
+        -0.6428,
+        0.0,
+        0.766
+      ],
+      "tireHalfWidth": {
+        "front": 0.026,
+        "rear": 0.052
+      },
+      "tris": 5112
+    },
+    "cruiser": {
+      "forkBoneHead": [
+        0.3629,
+        0.0,
+        0.965
+      ],
+      "steerAxis": [
+        -0.309,
+        0.0,
+        0.9511
+      ],
+      "tireHalfWidth": {
+        "front": 0.048,
+        "rear": 0.048
+      },
+      "tris": 5836
+    },
+    "fat": {
+      "forkBoneHead": [
+        0.3629,
+        0.0,
+        0.965
+      ],
+      "steerAxis": [
+        -0.309,
+        0.0,
+        0.9511
+      ],
+      "tireHalfWidth": {
+        "front": 0.075,
+        "rear": 0.075
+      },
+      "tris": 4444
+    },
+    "kids": {
+      "forkBoneHead": [
+        0.3629,
+        0.0,
+        0.965
+      ],
+      "steerAxis": [
+        -0.309,
+        0.0,
+        0.9511
+      ],
+      "tireHalfWidth": {
+        "front": 0.035,
+        "rear": 0.035
+      },
+      "tris": 5748
+    }
+  },
+  "rider": {
+    "bones": {
+      "Root": [
+        0,
+        0,
+        0
+      ],
+      "Hips": [
+        -0.205,
+        0.0,
+        0.995
+      ],
+      "Torso": [
+        -0.205,
+        0.0,
+        0.995
+      ],
+      "Head": [
+        0.057,
+        0.0,
+        1.5569
+      ],
+      "Hat": [
+        0.057,
+        0.0,
+        1.9269
+      ],
+      "UpperArm_L": [
+        0.0063,
+        0.42,
+        1.4482
+      ],
+      "LowerArm_L": [
+        0.1595,
+        0.4493,
+        1.2502
+      ],
+      "Hand_L": [
+        0.34,
+        0.3,
+        1.16
+      ],
+      "UpperArm_R": [
+        0.0063,
+        -0.42,
+        1.4482
+      ],
+      "LowerArm_R": [
+        0.1595,
+        -0.4493,
+        1.2502
+      ],
+      "Hand_R": [
+        0.34,
+        -0.3,
+        1.16
+      ],
+      "UpperLeg_L": [
+        -0.1521,
+        0.155,
+        1.0255
+      ],
+      "LowerLeg_L": [
+        0.0876,
+        0.155,
+        0.6831
+      ],
+      "Foot_L": [
+        -0.22,
+        0.155,
+        0.4
+      ],
+      "UpperLeg_R": [
+        -0.1521,
+        -0.155,
+        1.0255
+      ],
+      "LowerLeg_R": [
+        0.2055,
+        -0.155,
+        0.8092
+      ],
+      "Foot_R": [
+        0.12,
+        -0.155,
+        0.4
+      ]
+    },
+    "parents": {
+      "Root": null,
+      "Hips": "Root",
+      "Torso": "Hips",
+      "Head": "Torso",
+      "Hat": "Head",
+      "UpperArm_L": "Torso",
+      "LowerArm_L": "UpperArm_L",
+      "Hand_L": "LowerArm_L",
+      "UpperArm_R": "Torso",
+      "LowerArm_R": "UpperArm_R",
+      "Hand_R": "LowerArm_R",
+      "UpperLeg_L": "Hips",
+      "LowerLeg_L": "UpperLeg_L",
+      "Foot_L": "LowerLeg_L",
+      "UpperLeg_R": "Hips",
+      "LowerLeg_R": "UpperLeg_R",
+      "Foot_R": "LowerLeg_R"
+    },
+    "segments": {
+      "thigh": 0.418,
+      "shin": 0.418,
+      "upperArm": 0.252,
+      "forearm": 0.251
+    },
+    "hipToPedal": {
+      "min": 0.4638,
+      "max": 0.8038,
+      "minRatio": 0.5548,
+      "maxRatio": 0.9615
+    },
+    "shoulderToGrip": 0.4569,
+    "armRatio": 1.1008,
+    "kneePole": [
+      1.0,
+      0.0,
+      0.15
+    ],
+    "footLevelAtShinDeg": -30.0,
+    "elbowPole": {
+      "L": [
+        -0.2,
+        1.0,
+        -0.55
+      ],
+      "R": [
+        -0.2,
+        -1.0,
+        -0.55
+      ]
+    },
+    "torsoLeanDeg": 25.0,
+    "clips": {
+      "idle": 2.0,
+      "cheer": 1.0,
+      "crash": 1.2
+    }
+  },
+  "pedalAbsY": 0.155,
+  "pedalRest": {
+    "R": [
+      0.12,
+      -0.155,
+      0.4
+    ],
+    "L": [
+      -0.22,
+      0.155,
+      0.4
+    ]
+  },
+  "pedalFormula": "ось правой педали = каретка + 0.17*(cos a, 0, -sin a) по (X, Z), Y = -0.155; левой — угол a + pi, Y = +0.155",
+  "briefDelta": {
+    "saddleTop": "было (-0.24, 0, 1.02)",
+    "grips": "было (0.40, ±0.28, 1.12)"
+  }
+}

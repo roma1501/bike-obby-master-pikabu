@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Велосипед в небе: полоса препятствий</title>
+    <link rel="icon" type="image/png" href="assets/ui/favicon.png">
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #222;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        input, textarea, [contenteditable] { -webkit-user-select: text; user-select: text; }
+        /* ПК с ультрашироким окном: поле игры не шире 2:1, по бокам — поля (класс ставит Game.js на Playgama) */
+        @media (min-aspect-ratio: 2/1) and (hover: hover) and (pointer: fine) {
+            html.aspect-2x1 body { width: 200vh; margin: 0 auto; position: relative; transform: translateZ(0); }
+        }
+        img { -webkit-user-drag: none; }
+        #world3d {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+            outline: none;
+            touch-action: none;
+        }
+        @font-face { font-family: 'Russo One'; src: url('assets/fonts/russoone.ttf?v=1.0.7-2c5e6d98') format('truetype'); font-weight: 400; font-display: swap; }
+        :root {
+            --bo-dark: #1b1240; --bo-purple: #7b4dff; --bo-orange: #ff9f1c; --bo-green: #56c93a;
+            --bo-yellow: #ffd23f; --bo-red: #ff4d5e; --bo-sky: #3ec5ff; --bo-pink: #ff7ac8; --bo-white: #ffffff;
+            --bo-font: 'Russo One', 'Arial Black', system-ui, sans-serif;
+            --bo-outline: 3.00px 0.00px 0 var(--bo-dark), 2.77px 1.15px 0 var(--bo-dark), 2.12px 2.12px 0 var(--bo-dark), 1.15px 2.77px 0 var(--bo-dark), 0.00px 3.00px 0 var(--bo-dark), -1.15px 2.77px 0 var(--bo-dark), -2.12px 2.12px 0 var(--bo-dark), -2.77px 1.15px 0 var(--bo-dark), -3.00px 0.00px 0 var(--bo-dark), -2.77px -1.15px 0 var(--bo-dark), -2.12px -2.12px 0 var(--bo-dark), -1.15px -2.77px 0 var(--bo-dark), -0.00px -3.00px 0 var(--bo-dark), 1.15px -2.77px 0 var(--bo-dark), 2.12px -2.12px 0 var(--bo-dark), 2.77px -1.15px 0 var(--bo-dark), 1.60px 0.00px 0 var(--bo-dark), 1.13px 1.13px 0 var(--bo-dark), 0.00px 1.60px 0 var(--bo-dark), -1.13px 1.13px 0 var(--bo-dark), -1.60px 0.00px 0 var(--bo-dark), -1.13px -1.13px 0 var(--bo-dark), -0.00px -1.60px 0 var(--bo-dark), 1.13px -1.13px 0 var(--bo-dark), 0 4px 0 var(--bo-dark);
+            --bo-outline-thin: 1.60px 0.00px 0 var(--bo-dark), 1.39px 0.80px 0 var(--bo-dark), 0.80px 1.39px 0 var(--bo-dark), 0.00px 1.60px 0 var(--bo-dark), -0.80px 1.39px 0 var(--bo-dark), -1.39px 0.80px 0 var(--bo-dark), -1.60px 0.00px 0 var(--bo-dark), -1.39px -0.80px 0 var(--bo-dark), -0.80px -1.39px 0 var(--bo-dark), -0.00px -1.60px 0 var(--bo-dark), 0.80px -1.39px 0 var(--bo-dark), 1.39px -0.80px 0 var(--bo-dark);
+            --tut-font: var(--bo-font); --tut-bg: rgba(27,18,64,.92); --tut-fg: #ffffff; --tut-accent: #ffd23f; --tut-border: #1b1240; --tut-radius: 18px;
+        }
+        * { -webkit-tap-highlight-color: transparent; }
+        /* Шрифт игры — у всего интерфейса (окна, всплывающие надписи, обучение, кнопки ввода) */
+        body, button, input, select { font-family: var(--bo-font); }
+        body * { font-synthesis: none; -webkit-font-smoothing: antialiased; }
+        /* Общие классы интерфейса игры: «конфетная» 3D-кнопка, панель, клетчатая лента, бирка-номер. */
+        .bo-btn { --c: var(--bo-green); position: relative; display: inline-flex; align-items: center; justify-content: center; gap: .4em;
+            min-height: 44px; padding: .5em 1.1em; border: 3px solid var(--bo-dark); border-radius: 16px; background: var(--c);
+            background-image: linear-gradient(180deg, rgba(255,255,255,.38) 0 42%, rgba(255,255,255,0) 42%);
+            box-shadow: 0 6px 0 var(--bo-dark), inset 0 -4px 0 rgba(0,0,0,.18); color: #fff; font: 400 18px var(--bo-font);
+            text-shadow: var(--bo-outline-thin), 0 2px 0 var(--bo-dark); letter-spacing: .02em; cursor: pointer; user-select: none;
+            transform: translateY(0); transition: transform .08s, box-shadow .08s, filter .15s; touch-action: manipulation; }
+        .bo-btn:hover { filter: brightness(1.08); }
+        .bo-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--bo-dark), inset 0 -3px 0 rgba(0,0,0,.18); }
+        .bo-btn[disabled], .bo-btn.is-off { filter: grayscale(.7) brightness(.85); cursor: default; }
+        .bo-btn.is-off:active, .bo-btn[disabled]:active { transform: none; box-shadow: 0 6px 0 var(--bo-dark), inset 0 -4px 0 rgba(0,0,0,.18); }
+        .bo-btn.round { width: 54px; height: 54px; min-height: 0; padding: 0; border-radius: 50%; font-size: 24px; }
+        .bo-btn .bo-ico { width: 1.2em; height: 1.2em; display: inline-block; flex: none; }
+        .bo-panel { position: relative; background: #fff8ec; border: 4px solid var(--bo-dark); border-radius: 22px; box-shadow: 0 8px 0 var(--bo-dark);
+            color: var(--bo-dark); font: 400 16px var(--bo-font); overflow: hidden; }
+        .bo-checker { background-color: #fff; background-image: linear-gradient(45deg, var(--bo-dark) 25%, transparent 25%, transparent 75%, var(--bo-dark) 75%),
+            linear-gradient(45deg, var(--bo-dark) 25%, transparent 25%, transparent 75%, var(--bo-dark) 75%);
+            background-size: 16px 16px; background-position: 0 0, 8px 8px; }
+        .bo-title { font: 400 clamp(26px, 5vw, 44px)/1.05 var(--bo-font); color: #fff; text-shadow: var(--bo-outline), 0 6px 0 var(--bo-dark); letter-spacing: .02em; }
+        .bo-bib { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: #fff; color: var(--bo-dark); border: 3px solid var(--bo-dark);
+            border-radius: 8px; font: 400 15px var(--bo-font); box-shadow: 0 3px 0 var(--bo-dark); }
+        .bo-outline { text-shadow: var(--bo-outline); color: #fff; }
+        #loading-screen {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 14px;
+            background: linear-gradient(180deg, #45c6ff 0%, #9fe6f4 62%, #e9fbff 100%);
+            z-index: 1000;
+        }
+        .loading-text { font: 400 15px var(--bo-font); color: #fff; text-shadow: var(--bo-outline-thin); text-align: center; min-height: 1em; }
+        .loading-bar { width: min(300px, 72vw); height: 20px; background: #fff; border: 3px solid var(--bo-dark); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 0 var(--bo-dark); }
+        .loading-progress { height: 100%; width: 0%; background: repeating-linear-gradient(-45deg, var(--bo-green) 0 12px, #7fe05a 12px 24px); transition: width 0.3s ease; }
+        #loading-title { margin: 0; font: 400 clamp(30px, 7vw, 60px)/1.05 var(--bo-font); color: #fff; text-align: center; max-width: 90vw;
+            text-shadow: var(--bo-outline), 0 7px 0 var(--bo-dark); letter-spacing: .02em; }
+        .loading-bike { width: clamp(110px, 22vh, 190px); height: auto; animation: bo-roll 1.2s ease-in-out infinite alternate; }
+        @keyframes bo-roll { from { transform: translateX(-10px) rotate(-2deg); } to { transform: translateX(10px) rotate(2deg); } }
+        .loading-bike .w { transform-box: fill-box; transform-origin: center; animation: bo-spin .8s linear infinite; }
+        @keyframes bo-spin { to { transform: rotate(360deg); } }
+        #loading-percent { font: 400 18px var(--bo-font); color: #fff; text-shadow: var(--bo-outline-thin); }
+        #loading-retry { padding: 12px 24px; border: 3px solid var(--bo-dark); border-radius: 14px; background: var(--bo-green); color: #fff; font: 400 18px var(--bo-font);
+            text-shadow: var(--bo-outline-thin); box-shadow: 0 5px 0 var(--bo-dark); cursor: pointer; }
+    </style>
+</head>
+<body>
+    <canvas id="world3d"></canvas>
+    <div id="loading-screen" role="status" aria-busy="true" aria-live="polite">
+        <svg class="loading-bike" viewBox="0 0 220 130" aria-hidden="true">
+            <g fill="none" stroke="#1b1240" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+                <g class="w"><circle cx="52" cy="88" r="34" fill="#fff"/><path d="M52 58v60M22 88h60M31 67l42 42M73 67l-42 42" stroke-width="4"/></g>
+                <g class="w"><circle cx="168" cy="88" r="34" fill="#fff"/><path d="M168 58v60M138 88h60M147 67l42 42M189 67l-42 42" stroke-width="4"/></g>
+                <path d="M52 88 92 40h56L168 88M92 40l20 48h-60M112 88l36-48M84 26h22M140 22l8 18 18-6"/>
+                <path d="M52 88 92 40h56L168 88M92 40l20 48h-60M112 88l36-48" stroke="#ff4d5e" stroke-width="5"/>
+            </g>
+        </svg>
+        <h1 id="loading-title">Велосипед в небе: полоса препятствий</h1>
+        <div id="loading-percent">0%</div>
+        <div class="loading-bar" id="loading-meter" role="progressbar" aria-label="Loading" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="loading-progress"></div></div>
+        <div class="loading-text" data-t="loading">Загрузка…</div>
+        <button id="loading-retry" type="button" hidden></button>
+    </div>
+
+    <!-- Порядок значим: Constants.js первым (остальные читают его глобалы), main.js последним -->
+    <script src="https://games.pikabu.ru/sdk/sdk.js"></script>
+<script src="js/Constants.js?v=1.0.7-2c5e6d98"></script>
+    <script src="libs/simplex-noise.js?v=1.0.7-2c5e6d98"></script>
+    <script src="libs/babylon.js?v=1.0.7-2c5e6d98"></script>
+    <script src="js/Maps.js?v=1.0.7-2c5e6d98"></script>
+    <script src="js/Maps2D.js?v=1.0.7-2c5e6d98"></script>
+    <script src="js/World2D.js?v=1.0.7-2c5e6d98"></script>
+    <script src="js/World3D.js?v=1.0.7-2c5e6d98"></script>
+    <script src="js/Terrain3D.js?v=1.0.7-2c5e6d98"></script>
+    <script src="js/CameraControl.js?v=1.0.7-2c5e6d98"></script>
+    <script src="js/Model3D.js?v=1.0.7-2c5e6d98"></script>
+    <script src="js/ModelFBX.js?v=1.0.7-2c5e6d98"></script>
+    <script src="js/ModelOBJ.js?v=1.0.7-2c5e6d98"></script>
+    <script src="js/ModelGLTF.js?v=1.0.7-2c5e6d98"></script>
+    <script src="js/Location3D.js?v=1.0.7-2c5e6d98"></script>
+    <!-- world-a: Rig.js (риги и клипы), Nav.js (коллизии, высоты, пути) -->
+    <script src="js/Rig.js?v=1.0.7-2c5e6d98"></script>
+    <script src="js/Nav.js?v=1.0.7-2c5e6d98"></script>
+    <!-- 1.30 мир (world-b): уровни графики и время суток -->
+    <script src="js/Quality.js?v=1.0.7-2c5e6d98"></script>
+    <script src="js/Sky3D.js?v=1.0.7-2c5e6d98"></script>
+    <script src="js/Pause.js?v=1.0.7-2c5e6d98"></script>
+    <script src="js/Sound.js?v=1.0.7-2c5e6d98"></script>
+    <script src="js/Lang.js?v=1.0.7-2c5e6d98"></script>
+    <script src="js/Platform.js?v=1.0.7-2c5e6d98"></script>
+    <!-- Адаптеры площадок (Platform.register): Playgama; игра добавляет свои здесь же, после Platform.js -->
+    <script src="js/PlatformPlaygama.js?v=1.0.7-2c5e6d98"></script>
+    <!-- Адаптеры Telegram Mini App, CrazyGames, Android-обёртки и сборки test (detect() выбирает площадку) -->
+    <script src="js/PlatformTelegram.js?v=1.0.7-2c5e6d98"></script>
+    <script src="js/PlatformCrazy.js?v=1.0.7-2c5e6d98"></script>
+    <script src="js/PlatformPikabu.js?v=1.0.7-2c5e6d98"></script>
+    <script src="js/PlatformAndroid.js?v=1.0.7-2c5e6d98"></script>
+    <script src="js/PlatformTest.js?v=1.0.7-2c5e6d98"></script>
+    <script src="js/LoadingScreen.js?v=1.0.7-2c5e6d98"></script>
+    <script src="js/ParticleFX.js?v=1.0.7-2c5e6d98"></script>
+    <script src="js/Telemetry.js?v=1.0.7-2c5e6d98"></script>
+    <!-- 1.30 systems-b: магазин косметики, Daily Gift, колесо фортуны (логика без UI, опт-ин: Shop/DailyGift/Wheel.init в Game.js) -->
+    <script src="js/Shop.js?v=1.0.7-2c5e6d98"></script>
+    <script src="js/DailyGift.js?v=1.0.7-2c5e6d98"></script>
+    <script src="js/Wheel.js?v=1.0.7-2c5e6d98"></script>
+    <!-- 1.30 systems-a: ввод, раскладка HUD, обучение. Opt-in: игра сама зовёт Input.init / HudLayout.init / Tutorial.init -->
+    <script src="js/HudLayout.js?v=1.0.7-2c5e6d98"></script>
+    <script src="js/Input.js?v=1.0.7-2c5e6d98"></script>
+    <script src="js/Tutorial.js?v=1.0.7-2c5e6d98"></script>
+    <script src="js/LiveWater3D.js?v=1.0.7-2c5e6d98"></script>
+    <!-- Скрипты игры (js/Game.js и её модули) — здесь, до main.js -->
+    <script src="js/GameAds.js?v=1.0.7-2c5e6d98"></script>
+    <script src="js/GameShopData.js?v=1.0.7-2c5e6d98"></script>
+    <script src="js/GameLook.js?v=1.0.7-2c5e6d98"></script>
+    <script src="js/GameCourse.js?v=1.0.7-2c5e6d98"></script>
+    <script src="js/GameBike.js?v=1.0.7-2c5e6d98"></script>
+    <script src="js/GameBots.js?v=1.0.7-2c5e6d98"></script>
+    <script src="js/GameCamera.js?v=1.0.7-2c5e6d98"></script>
+    <script src="js/GameHud.js?v=1.0.7-2c5e6d98"></script>
+    <script src="js/GameMeta.js?v=1.0.7-2c5e6d98"></script>
+    <script src="js/Game.js?v=1.0.7-2c5e6d98"></script>
+    <script src="js/main.js?v=1.0.7-2c5e6d98"></script>
+    <script>
+        // Игровая область: долгий тап и ПКМ не открывают меню браузера, картинки не
+        // тянутся, текст не выделяется — кроме настоящих полей ввода.
+        (() => {
+            const isField = t => t && (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t.isContentEditable);
+            for (const type of ['contextmenu', 'dragstart', 'selectstart']) {
+                document.addEventListener(type, e => { if (!isField(e.target)) e.preventDefault(); });
+            }
+        })();
+    </script>
+</body>
+</html>
